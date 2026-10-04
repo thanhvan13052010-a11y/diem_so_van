@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+    margin:0;
+    width:100%;
+    min-height:100%;
+    background:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+/* ===== BẢNG GIỐNG FILE GỐC ===== */
+.sheet{
+    width:622px;
+    margin:185px 0 0 81px;
+}
+
+table{
+    width:622px;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-size:12px;
+    color:#000;
+}
+
+th,td{
+    border:1px solid #222;
+    height:19px;
+    padding:0 4px;
+    line-height:18px;
+    overflow:hidden;
+    white-space:nowrap;
+}
+
+th{
+    height:20px;
+    background:#fff;
+    font-weight:bold;
+    text-align:center;
+}
+
+td.stt{
+    width:58px;
+    text-align:center;
+    background:#fff;
+}
+
+td.name{
+    width:216px;
+    text-align:left;
+    background:#fff;
+}
+
+td.number{
+    text-align:right;
+}
+
+/* Màu dùng bởi cấu trúc dữ liệu bên dưới */
+.color-green{
+    background:#dff3d9 !important;
+    color:#00a000 !important;
+}
+.color-pink{
+    background:#e8a4a8 !important;
+    color:#000 !important;
+}
+.color-purple{
+    background:#c85ce9 !important;
+    color:#000 !important;
+}
+.color-gray{
+    background:#d9d9d9 !important;
+    color:#000 !important;
+}
+.color-white{
+    background:#fff !important;
+    color:#000 !important;
+}
+
+/* Các cột trống trong file gốc */
+.default-gray{
+    background:#d9d9d9;
+}
+
+/* Trang 2 của PDF chỉ là phần tiếp theo của bảng */
+.page-break{
+    height:0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sheet">
+<table>
+    <colgroup>
+        <col style="width:58px">
+        <col style="width:216px">
+        <col style="width:84px">
+        <col style="width:84px">
+        <col style="width:84px">
+        <col style="width:96px">
+    </colgroup>
+
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>Họ tên</th>
+            <th>cộng</th>
+            <th>trừ</th>
+            <th>vở</th>
+            <th>chuyên đề(+)</th>
+        </tr>
+    </thead>
+
+    <tbody id="page1"></tbody>
+</table>
+
+<table style="margin-top:0">
+    <colgroup>
+        <col style="width:58px">
+        <col style="width:216px">
+        <col style="width:84px">
+        <col style="width:84px">
+        <col style="width:84px">
+        <col style="width:96px">
+    </colgroup>
+    <tbody id="page2"></tbody>
+</table>
+</div>
+
+<script>
+/*
+==========================================================
+CẤU TRÚC DỮ LIỆU - CHỈ CẦN SỬA PHẦN NÀY
+==========================================================
+
+Mỗi dòng có dạng:
+
+[
+    "STT",
+    "Tên người",
+    "cộng",
+    "trừ",
+    "vở",
+    "chuyên đề(+)"
+]
+
+Muốn đổi số:
+    "4"
+
+Muốn đổi số + màu:
+    "4;color:green"
+
+Ví dụ:
+    "12;color:green"
+    "1;color:pink"
+    "0;color:purple"
+
+Màu hỗ trợ:
+    green
+    pink
+    purple
+    gray
+    white
+
+Cũng có thể dùng màu CSS:
+    "5;color:#ff0000"
+
+Chỉ sửa tên và các số trong DATA, KHÔNG cần sửa phần HTML bên dưới.
+==========================================================
+*/
+
+const DATA = [
+
+    /* ===== TRANG 1 ===== */
+    ["1","Đỗ Vân Anh","","","","0.5;color:green"],
+    ["2","Hàn Thị Minh Anh","4;color:green","","",""],
+    ["3","Hồ Văn Hoàng Anh","","","",""],
+    ["4","Nguyễn Thụy Lan Anh","","","",""],
+    ["5","Vũ Văn Bắc","","","",""],
+    ["6","Đặng Hồng Lan Chi","25;color:green","","","1;color:green"],
+    ["7","Mai Thanh Dễ","1;color:green","","",""],
+    ["8","Nguyễn Thị Thùy Diệu","9.5;color:green","","7","1;color:green"],
+    ["9","Nguyễn Phan Minh Đức","","","4",""],
+    ["10","Lê Ngọc Hân","15;color:green","","",""],
+    ["11","Trần Ngọc Hân","2;color:green","","6.5",""],
+    ["12","Thiều Nguyễn Hồng Hội","","","",""],
+    ["13","Vương Phi Hùng","","","",""],
+    ["14","Lê Nguyễn Gia Huy","0.5;color:green","","5",""],
+    ["15","Nguyễn Nhật Huy","8.5;color:green","","",""],
+    ["16","Hà Đình Khoa","1.5;color:green","","",""],
+    ["17","Dương Ngọc Linh","3;color:green","","",""],
+    ["18","Vũ Thị Khánh Linh","10;color:green","","",""],
+    ["19","Trần Sơn Nam","1;color:green","","","0.5;color:green"],
+    ["20","Nguyễn Hoàng Thúy Ngân","13;color:green","","",""],
+    ["21","Nguyễn Hoàng Bảo Ngọc","","","",""],
+    ["22","Trần Bảo Nguyên","4.5;color:green","","","0.5;color:green"],
+    ["23","Trần Nguyễn Anh Nguyên","","","","0;color:purple"],
+    ["24","Lê Thành Nhân","","","2",""],
+    ["25","Huỳnh Xuân Nhi","","","",""],
+    ["26","Phan Nguyễn Tuệ Nhi","1;color:green","","",""],
+    ["27","Bá Lê Oanh","1.5;color:green","","6.5","0.5;color:green"],
+    ["28","Nguyễn Minh Phương","","","",""],
+    ["29","Lưu An Quý","","","4",""],
+    ["30","Trịnh Hạnh San","2;color:green","","",""],
+    ["31","Neang Kim Sơn","4.5;color:green","","",""],
+    ["32","Võ Thái Sơn","4.5;color:green","","",""],
+
+    /* ===== TRANG 2 ===== */
+    ["33","Lê Chí Tâm","1.5;color:green","","",""],
+    ["34","Nguyễn Thành Tâm","2;color:green","","8",""],
+    ["35","Lê Thị Thu Thảo","","1;color:pink","",""],
+    ["36","Nguyễn Minh Thanh Thảo","5;color:green","","","0.5;color:green"],
+    ["37","Trần Thanh Thảo","9;color:green","","7",""],
+    ["38","Lê Thị Thanh Thùy","5;color:green","","7",""],
+    ["39","Phạm Ngọc Thủy","4.5;color:green","","",""],
+    ["40","Trần Hoàng Tiên","1;color:green","","8",""],
+    ["41","Nguyễn Ngọc Huỳnh Trâm","4;color:green","","","1;color:green"],
+    ["42","Lại Minh Trí","","","",""],
+    ["43","Nguyễn Thành Trọng","","","",""],
+    ["44","Lưu Nhựt Trường","0.5;color:green","","3",""],
+    ["45","Trần Minh Tú","0.5;color:green","","5",""],
+    ["46","Hoàng Ngọc Tùng","","","",""],
+    ["47","Ngô Mỹ Vân","12;color:green","","","1;color:green"],
+    ["48","Bùi Tuấn Vũ","7;color:green","","",""]
+];
+
+
+/*
+==========================================================
+BỘ XỬ LÝ "số;color:..."
+==========================================================
+Ví dụ:
+"5;color:green"
+=> ô hiển thị 5 + nền xanh
+
+"1;color:pink"
+=> ô hiển thị 1 + nền hồng
+==========================================================
+*/
+
+const COLORS = {
+    green:  "color-green",
+    pink:   "color-pink",
+    purple: "color-purple",
+    gray:   "color-gray",
+    white:  "color-white"
+};
+
+function parseCell(value){
+    if(!value) return {text:"", color:""};
+
+    const parts = String(value).split(";");
+
+    let text = parts[0];
+    let color = "";
+
+    for(let i = 1; i < parts.length; i++){
+        const item = parts[i].trim();
+
+        if(item.startsWith("color:")){
+            color = item.substring(6).trim();
+        }
+    }
+
+    return {text, color};
+}
+
+function applyColor(cell, color){
+    if(!color) return;
+
+    const named = COLORS[color.toLowerCase()];
+
+    if(named){
+        cell.classList.add(named);
+    }else{
+        /*
+        Cho phép:
+        "5;color:red"
+        "5;color:#00ff00"
+        "5;color:rgb(0,255,0)"
+        */
+        cell.style.background = color;
+    }
+}
+
+function createRow(row){
+    const tr = document.createElement("tr");
+
+    const stt = document.createElement("td");
+    stt.className = "stt";
+    stt.textContent = row[0];
+    tr.appendChild(stt);
+
+    const name = document.createElement("td");
+    name.className = "name";
+    name.textContent = row[1];
+    tr.appendChild(name);
+
+    for(let i = 2; i <= 5; i++){
+        const td = document.createElement("td");
+        td.className = "number";
+
+        /*
+        Cột trừ luôn có nền xám nếu không có màu riêng.
+        */
+        if(i === 3){
+            td.classList.add("default-gray");
+        }
+
+        /*
+        Cột cộng: ô trống xám.
+        Cột vở: ô trống xám, nhưng ô có số giữ trắng.
+        Cột chuyên đề: ô trống xám.
+        */
+        if(i === 2 || i === 4 || i === 5){
+            td.classList.add("default-gray");
+        }
+
+        const parsed = parseCell(row[i]);
+
+        td.textContent = parsed.text;
+
+        /*
+        Khi ô vở có số mà không khai báo color,
+        file gốc để nền trắng.
+        */
+        if(i === 4 && parsed.text && !parsed.color){
+            td.classList.remove("default-gray");
+            td.classList.add("color-white");
+        }
+
+        applyColor(td, parsed.color);
+
+        tr.appendChild(td);
+    }
+
+    return tr;
+}
+
+/* 32 dòng đầu: có tiêu đề */
+for(let i = 0; i < 32; i++){
+    document.getElementById("page1").appendChild(createRow(DATA[i]));
+}
+
+/* 16 dòng sau: trang 2, không lặp lại tiêu đề */
+for(let i = 32; i < DATA.length; i++){
+    document.getElementById("page2").appendChild(createRow(DATA[i]));
+}
+</script>
+
+</body>
+</html>
